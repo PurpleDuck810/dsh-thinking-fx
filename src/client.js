@@ -107,8 +107,201 @@ window.__ModuleLoader__.load({
       return String(value).replace(/[;{}]/g, '').replace(/[\r\n]+/g, ' ').trim()
     }
 
+    // ── 尺寸设置 ────────────────────────────────────────────────────────────
+    // DSH 设置页里的「深度思考表情包」一节会写这两个 cookie。
+    // 用 cookie 而不是 localStorage：DSH 桌面端每次启动端口会变，localStorage 按
+    // origin（含端口）隔离会丢；cookie 按 127.0.0.1 这个 host 存，换端口仍在。
+    const SIZE_KEY = 'thinking_fx_size'
+    const SCALE_KEY = 'thinking_fx_scale'
+    const DEFAULT_SIZE = 52
+    const DEFAULT_SCALE = 1.4
+
+    function clamp(value, min, max) {
+      return Math.min(max, Math.max(min, value))
+    }
+
+    function cookieValue(name) {
+      try {
+        const pattern = new RegExp(`(?:^|; )${name}=([^;]*)`)
+        const match = document.cookie.match(pattern)
+        return match ? decodeURIComponent(match[1]) : undefined
+      } catch {
+        return undefined
+      }
+    }
+
+    function stored(key) {
+      const n = Number(cookieValue(key))
+      return Number.isFinite(n) && n > 0 ? n : undefined
+    }
+
+    function store(key, value) {
+      try {
+        document.cookie = `${key}=${encodeURIComponent(value)}; path=/; max-age=31536000; SameSite=Lax`
+      } catch {
+        /* 隐私模式等场景下静默失败 */
+      }
+    }
+
+    function forget(key) {
+      try {
+        document.cookie = `${key}=; path=/; max-age=0; SameSite=Lax`
+      } catch {
+        /* ignore */
+      }
+    }
+
+    function applySizeVars(size, scale) {
+      if (typeof document === 'undefined') return
+      document.documentElement.style.setProperty('--tfx-size', `${size}px`)
+      document.documentElement.style.setProperty('--tfx-text-scale', String(scale))
+    }
+
+    function currentNumber(name, fallback) {
+      if (typeof document === 'undefined') return fallback
+      const n = Number.parseFloat(getComputedStyle(document.documentElement).getPropertyValue(name))
+      return Number.isFinite(n) && n > 0 ? n : fallback
+    }
+
+    function makeSettingsComponent(React) {
+      return function SizeSettings() {
+        const [size, setSize] = React.useState(
+          () => clamp(stored(SIZE_KEY) ?? currentNumber('--tfx-size', DEFAULT_SIZE), 28, 80),
+        )
+        const [scale, setScale] = React.useState(
+          () => clamp(stored(SCALE_KEY) ?? currentNumber('--tfx-text-scale', DEFAULT_SCALE), 1, 2),
+        )
+
+        const changeSize = (value) => {
+          const next = clamp(Number(value), 28, 80)
+          setSize(next)
+          store(SIZE_KEY, next)
+          applySizeVars(next, scale)
+        }
+        const changeScale = (value) => {
+          const next = clamp(Number(value), 1, 2)
+          setScale(next)
+          store(SCALE_KEY, next)
+          applySizeVars(size, next)
+        }
+        const reset = () => {
+          setSize(DEFAULT_SIZE)
+          setScale(DEFAULT_SCALE)
+          forget(SIZE_KEY)
+          forget(SCALE_KEY)
+          applySizeVars(DEFAULT_SIZE, DEFAULT_SCALE)
+        }
+
+        const row = (label, value, min, max, step, onChange, display) =>
+          React.createElement(
+            'label',
+            {
+              style: {
+                display: 'flex',
+                alignItems: 'center',
+                gap: '12px',
+                margin: '0 0 14px',
+                fontSize: '13px',
+                color: 'var(--dsw-alias-label-secondary)',
+              },
+            },
+            React.createElement('span', { style: { flex: '0 0 76px' } }, label),
+            React.createElement('input', {
+              type: 'range',
+              min,
+              max,
+              step,
+              value,
+              onChange: (event) => onChange(event.target.value),
+              style: { flex: '1 1 auto', accentColor: 'var(--dsw-alias-state-business-primary)' },
+            }),
+            React.createElement(
+              'span',
+              {
+                style: {
+                  flex: '0 0 58px',
+                  textAlign: 'right',
+                  fontVariantNumeric: 'tabular-nums',
+                  color: 'var(--dsw-alias-label-primary)',
+                },
+              },
+              display,
+            ),
+          )
+
+        return React.createElement(
+          'div',
+          { style: { padding: '4px 2px', maxWidth: '560px', color: 'var(--dsw-alias-label-primary)' } },
+          React.createElement(
+            'h3',
+            { style: { margin: '0 0 6px', fontSize: '16px', fontWeight: 600 } },
+            '深度思考表情包',
+          ),
+          React.createElement(
+            'p',
+            {
+              style: {
+                margin: '0 0 20px',
+                fontSize: '13px',
+                lineHeight: 1.6,
+                color: 'var(--dsw-alias-label-tertiary)',
+              },
+            },
+            '调整运行状态行左侧图标和文字的大小。修改会立即生效，并保存在当前浏览器。',
+          ),
+          row('图标大小', size, 28, 80, 1, changeSize, `${Math.round(size)}px`),
+          row('文字大小', scale, 1, 2, 0.05, changeScale, `${scale.toFixed(2)}×`),
+          React.createElement(
+            'button',
+            {
+              type: 'button',
+              onClick: reset,
+              style: {
+                marginTop: '6px',
+                padding: '6px 12px',
+                borderRadius: '8px',
+                border: '1px solid var(--dsw-alias-border-l2)',
+                background: 'var(--dsw-alias-bg-layer-1)',
+                color: 'var(--dsw-alias-label-primary)',
+                cursor: 'pointer',
+                fontSize: '13px',
+              },
+            },
+            '恢复默认（52px / 1.4×）',
+          ),
+        )
+      }
+    }
+
+    /** 注册 DSH 设置页里的「深度思考表情包」一节；没有 slots 服务时静默跳过。 */
+    function registerSettings(ctx, require) {
+      if (!ctx.slots || typeof ctx.slots.inject !== 'function') return
+      ctx.effect(() => {
+        let React
+        try {
+          React = require('react')
+        } catch {
+          return
+        }
+        const SizeSettings = makeSettingsComponent(React)
+        return ctx.slots.inject('settings.section', () =>
+          ctx.slots.register(
+            {
+              name: 'settings.section',
+              id: 'thinking-fx',
+              order: 600,
+              label: () => '深度思考表情包',
+            },
+            () => React.createElement(SizeSettings),
+          ),
+        )
+      }, `${PLUGIN}: settings section`)
+    }
+
     module.exports = {
       name: PLUGIN,
+      /** 设置页需要 slots；客户端的 slots 服务随 shell 一起提供。 */
+      inject: ['slots'],
 
       /**
        * 挂样式表、写根属性、设自定义属性；dispose 时逐项还原。
@@ -122,8 +315,8 @@ window.__ModuleLoader__.load({
           const preset = PRESETS.has(CONFIG.preset) ? CONFIG.preset : 'orbit'
           const effective = preset === 'glyph' && FRAMES.length === 0 ? 'orbit' : preset
           const textMode = TEXT_MODES.has(CONFIG.textMode) ? CONFIG.textMode : 'keep'
-          const size = positive(CONFIG.iconSize, 16)
-          const textScale = positive(CONFIG.textScale, 1)
+          const size = clamp(stored(SIZE_KEY) ?? positive(CONFIG.iconSize, 16), 16, 120)
+          const textScale = clamp(stored(SCALE_KEY) ?? positive(CONFIG.textScale, 1), 0.5, 3)
           const speed = positive(CONFIG.speed, 1)
           const textSpeed = positive(CONFIG.textSpeed, 1)
           const glyphMode = GLYPH_MODES.has(CONFIG.glyphMode) ? CONFIG.glyphMode : 'random'
@@ -205,6 +398,8 @@ window.__ModuleLoader__.load({
             for (const [name] of vars) root.style.removeProperty(name)
           }
         }, `${PLUGIN}: running-tail`)
+
+        registerSettings(ctx, require)
       },
     }
 

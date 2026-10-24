@@ -19,8 +19,8 @@
 - 藏掉官方鲸鱼（`_runningWhaleAnimated` + `_runningWhaleStill`），在图标盒上画自己的 glyph；
 - **每次思考随机抽一张动画**：运行状态行每次重新出现时，从五张里抽一张，抽中的那张会
   **循环播放它自己的 GIF 动画**（约 24fps，各 5 秒），不会连着两次同一张；
-- 52px 图标 + 16.8px 文字（官方是 14px 图标 / 12px 文字；这套线稿放 14px 会糊成一团，
-  大屏上 12px 也偏小）；
+- 默认 52px 图标 + 16.8px 文字（官方是 14px 图标 / 12px 文字；可在
+  **设置 → 深度思考表情包** 里改成 28–80px / 1–2×）；
 - `prefers-reduced-motion: reduce` 时自动换成该动画的静态首帧（和官方 APNG → 静态 SVG 的回退一致）；
 - `forced-colors` 下不接管，保留官方静态矢量图标；
 - 只改视觉：不读会话、不发请求、不碰模型上下文；停用插件即完全还原。
@@ -31,9 +31,9 @@
 
 ### 界面安装（推荐）
 
-1. 到 [Releases](https://github.com/PurpleDuck810/dsh-thinking-fx/releases) 下载 `dsh-thinking-fx-0.2.1.tgz`；
+1. 到 [Releases](https://github.com/PurpleDuck810/dsh-thinking-fx/releases) 下载 `dsh-thinking-fx-0.3.0.tgz`；
 2. 打开 DSH → 左侧栏 **插件** → **添加插件** → **安装第三方插件**；
-3. 填 tgz 的绝对路径，例如 `C:\Users\你\Downloads\dsh-thinking-fx-0.2.1.tgz`；
+3. 填 tgz 的绝对路径，例如 `C:\Users\你\Downloads\dsh-thinking-fx-0.3.0.tgz`；
 4. 安装完成后打开 `dsh-thinking-fx` 的开关。没生效就完全退出 DSH 再打开一次。
 
 也可以不下载 tgz，直接在输入框填仓库地址：`github:PurpleDuck810/dsh-thinking-fx`。
@@ -44,7 +44,7 @@
 
 ```powershell
 # 用 Releases 里的 tgz
-dsh plugin --profile desktop add "$env:USERPROFILE\Downloads\dsh-thinking-fx-0.2.1.tgz"
+dsh plugin --profile desktop add "$env:USERPROFILE\Downloads\dsh-thinking-fx-0.3.0.tgz"
 
 # 或直接从 GitHub 装
 dsh plugin --profile desktop add "github:PurpleDuck810/dsh-thinking-fx"
@@ -59,6 +59,16 @@ dsh plugin --profile desktop add "github:PurpleDuck810/dsh-thinking-fx"
 ```powershell
 dsh plugin --profile desktop remove dsh-thinking-fx
 ```
+
+## 调整尺寸
+
+打开 **设置 → 深度思考表情包**：
+
+- **图标大小**：28–80px，默认 **52px**
+- **文字大小**：1.0×–2.0×，默认 **1.4×**（约 16.8px）
+- **恢复默认**：回到 52px / 1.4×
+
+修改立即生效，保存在浏览器里；重启 DSH、端口变化后仍然保留，不需要重新构建。
 
 ## 开发
 
@@ -109,8 +119,8 @@ dsh-thinking-fx/
 | `glyphMode` | `random`（默认，每次抽一张）/ `fixed`（固定一张） |
 | `randomPer` | `run`（默认，每次运行重抽）/ `page`（每次刷新页面抽一次） |
 | `frame` | `glyphMode: 'fixed'` 时用第几张（0–4） |
-| `iconSize` | 图标盒边长；默认 **52**，想更紧凑可试 40，想更大可 56–64 |
-| `textScale` | 「深度求索中，用时 …」文字/行高倍率；默认 **1.4**（约 16.8px），大屏可 1.5–1.7 |
+| `iconSize` | 图标盒边长默认 **52**；设置页里的 cookie 值优先于这里 |
+| `textScale` | 文字/行高倍率默认 **1.4**（约 16.8px）；设置页里的 cookie 值优先 |
 | `accent` | 覆盖图标/文字主色，空 = 跟随主题的「深度求索」蓝 |
 | `textMode` | `keep` 保留官方扫光 / `glow` 加外发光 / `static` 关掉扫光副本 |
 | `textColor` / `shimmerColor` | 分别覆盖文字色与扫光色 |
@@ -172,6 +182,8 @@ node verify.mjs         # 注入真实 lib/client.js，断言随机抽帧、动�
 
 ## 版本
 
+- **0.3.0** — 新增「设置 → 深度思考表情包」：图标 28–80px、文字 1–2×，默认 52px / 1.4×；
+  设置保存在浏览器 cookie，重启或换端口仍生效。
 - **0.2.1** — 动画恢复原速（1.0×，5s），仍保留全部 120 帧 / 24fps。
 - **0.2.0** — 保留 120 帧、播放 1.25×；52px 图标 + 1.4× 文字；4 级 alpha。
 - **0.1.0** — 首版：静态首帧、每次运行随机抽一张。

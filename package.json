@@ -1,6 +1,6 @@
 {
   "name": "dsh-thinking-fx",
-  "version": "0.2.1",
+  "version": "0.3.0",
   "private": true,
   "description": "把 DSH「深度求索中」前的小鲸鱼尾巴换成 Q 版表情动画：每次运行随机一张循环播放，52px，颜色跟随主题。",
   "type": "module",
@@ -15,7 +15,8 @@
       "patch": "./cordis.patch.yml"
     },
     "client": {
-      "platform": "web"
+      "platform": "web",
+      "immediately": true
     }
   },
   "engines": {

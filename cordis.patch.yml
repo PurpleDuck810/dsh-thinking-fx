@@ -1,0 +1,7 @@
+# 只在以 BUNDLE 方式接线时才需要（package.json 里声明 dsh.bundle 并写进
+# profile 的 dsh.profile.bundles）。推荐做法是把下面这行直接加进
+# C:\Users\27608\.dsh\profiles\desktop\cordis.patch.yml 已有的 `- insert:`
+# 列表末尾，profile 会热加载，刷新页面即可看到效果。
+- insert:
+    - id: thinking-fx
+      name: dsh-thinking-fx

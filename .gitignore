@@ -1,0 +1,10 @@
+node_modules/
+dist/
+.tmp/
+
+# 原始 GIF 太大，不进仓库；构建产物 glyph-*.webp / still-*.png 已经在 assets/ 里
+assets/src-gif/
+
+*.log
+.DS_Store
+Thumbs.db

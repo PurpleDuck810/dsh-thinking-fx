@@ -1,0 +1,38 @@
+{
+  "name": "dsh-thinking-fx",
+  "version": "0.2.1",
+  "private": true,
+  "description": "把 DSH「深度求索中」前面的小鲸鱼尾巴换成你的 Q 版表情包：每次运行随机抽一张循环动画，52px 大图标，颜色跟随主题。",
+  "type": "module",
+  "main": "index.js",
+  "icon": "./icon.png",
+  "exports": {
+    ".": "./index.js",
+    "./client": "./lib/client.js"
+  },
+  "dsh": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    },
+    "client": {
+      "platform": "web"
+    }
+  },
+  "engines": {
+    "dsh": ">=0.1.5"
+  },
+  "scripts": {
+    "build": "node build.mjs"
+  },
+  "files": [
+    "index.js",
+    "lib/client.js",
+    "lib/thinking-fx.css",
+    "cordis.patch.yml",
+    "icon.png",
+    "README.md"
+  ],
+  "devDependencies": {
+    "playwright-core": "^1.64.1"
+  }
+}

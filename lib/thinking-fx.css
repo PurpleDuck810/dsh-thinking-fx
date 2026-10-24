@@ -1,0 +1,214 @@
+/* ============================================================================
+ * dsh-thinking-fx — 替换「深度求索中，用时 …」这一行里的小鲸鱼尾巴。
+ *
+ * 目标 DOM（@deepseek-ai/dsh-client-ui-chat，RunningStatus / RunningWhaleTail）：
+ *
+ *   [data-chat-running]
+ *     ├─ span (visually-hidden status)
+ *     ├─ span[class*="_runningDivider"]
+ *     └─ span[class*="_runningContent"]
+ *          ├─ span[class*="_runningIcon"]          ← 14px 图标盒
+ *          │    ├─ span[class*="_runningWhaleAnimated"]  ← 28×28 APNG 当 mask
+ *          │    └─ svg[class*="_runningWhaleStill"]      ← 静态矢量回退
+ *          └─ span[class*="_runningText"]          ← TextShimmer
+ *
+ * 所以只要：藏掉盒子里原有的两个子元素，再往图标盒上画自己的东西即可。
+ * 类名是 CSS Modules 哈希（如 .xz4KEq_runningIcon），不要写死哈希；
+ * 用 [class*="_runningIcon"] 这类后缀匹配，升级后仍然有效。
+ *
+ * 只在 forced-colors: none 下接管；强制颜色模式下保留官方静态矢量图标。
+ * 动效放在 prefers-reduced-motion: no-preference 里，减少动效时显示静态形状。
+ * ========================================================================== */
+
+/* 默认值（可被 client.js 里的 CONFIG 覆盖） */
+:root {
+  --tfx-size: 16px;
+  --tfx-text-scale: 1;
+  --tfx-speed: 1;
+  --tfx-text-speed: 1;
+}
+
+/* 运行状态整行放大：官方文字是 12px / 22px 行高，大屏上偏小 */
+html[data-thinking-fx] [data-chat-running] {
+  font-size: calc((var(--dsh-content-font-size, 14px) - 2px) * var(--tfx-text-scale, 1)) !important;
+  line-height: calc(22px * var(--tfx-text-scale, 1)) !important;
+}
+
+html[data-thinking-fx] [data-chat-running] [class*="_runningContent"] {
+  gap: calc(6px * var(--tfx-text-scale, 1)) !important;
+}
+
+@media (forced-colors: none) {
+  /* ── 拿掉原版鲸鱼 ─────────────────────────────────────────────────────── */
+  html[data-thinking-fx] [data-chat-running] [class*="_runningWhaleAnimated"],
+  html[data-thinking-fx] [data-chat-running] [class*="_runningWhaleStill"] {
+    display: none !important;
+  }
+
+  /* 图标盒：官方是 14px，这里允许放大到 16/18/20px 做细节 */
+  html[data-thinking-fx] [data-chat-running] [class*="_runningIcon"] {
+    width: var(--tfx-size, 16px) !important;
+    height: var(--tfx-size, 16px) !important;
+  }
+
+  /* ── off：整只图标消失（只留文字） ───────────────────────────────────── */
+  html[data-thinking-fx="off"] [data-chat-running] [class*="_runningIcon"] {
+    display: none !important;
+  }
+
+  /* ── orbit：一圈跑动的光环 + 中心点（默认） ──────────────────────────── */
+  html[data-thinking-fx="orbit"] [data-chat-running] [class*="_runningIcon"]::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    background: conic-gradient(
+      from 0turn,
+      transparent 0turn 0.42turn,
+      var(--tfx-accent, currentColor) 0.72turn,
+      transparent 0.84turn
+    );
+    -webkit-mask: radial-gradient(closest-side, transparent calc(100% - 2.4px), #000 calc(100% - 1.4px));
+    mask: radial-gradient(closest-side, transparent calc(100% - 2.4px), #000 calc(100% - 1.4px));
+  }
+
+  html[data-thinking-fx="orbit"] [data-chat-running] [class*="_runningIcon"]::after {
+    content: "";
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 34%;
+    height: 34%;
+    margin: -17% 0 0 -17%;
+    border-radius: 50%;
+    background: var(--tfx-accent, currentColor);
+    opacity: 0.9;
+  }
+
+  /* ── pulse：心跳光圈 + 呼吸核心 ─────────────────────────────────────── */
+  html[data-thinking-fx="pulse"] [data-chat-running] [class*="_runningIcon"]::before {
+    content: "";
+    position: absolute;
+    inset: 1px;
+    border: 1.5px solid var(--tfx-accent, currentColor);
+    border-radius: 50%;
+    opacity: 0.8;
+  }
+
+  html[data-thinking-fx="pulse"] [data-chat-running] [class*="_runningIcon"]::after {
+    content: "";
+    position: absolute;
+    inset: 34%;
+    border-radius: 50%;
+    background: var(--tfx-accent, currentColor);
+  }
+
+  /* ── emoji：用任意字符/emoji 顶替（默认 🐳） ────────────────────────── */
+  html[data-thinking-fx="emoji"] [data-chat-running] [class*="_runningIcon"]::before {
+    content: var(--tfx-emoji, "🐳");
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: calc(var(--tfx-size, 16px) * 0.9);
+    line-height: 1;
+  }
+
+  /* ── image：换成你自己的 GIF / APNG / WebP / SVG ─────────────────────
+   * CONFIG.image 支持 https URL 或 data: URI（本地文件路径在 http 页面里读不到）。
+   */
+  html[data-thinking-fx="image"] [data-chat-running] [class*="_runningIcon"]::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: var(--tfx-image) center / contain no-repeat;
+  }
+
+  /* ── glyph：官方同款做法 —— 动图当 mask，颜色跟 currentColor ──────────
+   * --tfx-glyph 是自带表情包的 data:image/webp（构建时内联），
+   * 想换成自己的 GIF/APNG 也可以直接把它设成别的 url(...)。
+   */
+  html[data-thinking-fx="glyph"] [data-chat-running] [class*="_runningIcon"]::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: var(--tfx-accent, currentColor);
+    -webkit-mask: var(--tfx-glyph) center / contain no-repeat;
+    mask: var(--tfx-glyph) center / contain no-repeat;
+  }
+
+  /* 减少动效时换成静态帧，和官方 APNG → 静态 SVG 的回退保持一致 */
+  @media (prefers-reduced-motion: reduce) {
+    html[data-thinking-fx="glyph"] [data-chat-running] [class*="_runningIcon"]::before {
+      -webkit-mask-image: var(--tfx-glyph-still);
+      mask-image: var(--tfx-glyph-still);
+    }
+  }
+
+  /* ── 文字：glow / static ─────────────────────────────────────────────── */
+  html[data-thinking-fx-text="glow"] [data-chat-running] [data-shimmer-text] {
+    text-shadow: 0 0 7px color-mix(in srgb, currentColor 55%, transparent);
+  }
+
+  /* 关掉扫光副本，文字变成纯色（仍保留用时刷新） */
+  html[data-thinking-fx-text="static"] [data-chat-running] [class*="_runningText"] > [aria-hidden="true"] {
+    display: none !important;
+  }
+
+  /* 扫光速度（TextShimmer 的 sweep / highlight 固定 1.5s） */
+  html[data-thinking-fx] [data-chat-running] [class*="_runningText"] [class*="_sweep"],
+  html[data-thinking-fx] [data-chat-running] [class*="_runningText"] [class*="_highlight"] {
+    animation-duration: calc(1.5s / var(--tfx-text-speed, 1)) !important;
+  }
+}
+
+/* ── 动效 ───────────────────────────────────────────────────────────────── */
+@media (prefers-reduced-motion: no-preference) and (forced-colors: none) {
+  html[data-thinking-fx="orbit"] [data-chat-running] [class*="_runningIcon"]::before {
+    animation: tfx-spin calc(1.15s / var(--tfx-speed, 1)) linear infinite;
+  }
+
+  html[data-thinking-fx="orbit"] [data-chat-running] [class*="_runningIcon"]::after {
+    animation: tfx-core calc(1.15s / var(--tfx-speed, 1)) ease-in-out infinite;
+  }
+
+  html[data-thinking-fx="pulse"] [data-chat-running] [class*="_runningIcon"]::before {
+    animation: tfx-halo calc(1.5s / var(--tfx-speed, 1)) ease-out infinite;
+  }
+
+  html[data-thinking-fx="pulse"] [data-chat-running] [class*="_runningIcon"]::after {
+    animation: tfx-breathe calc(1.5s / var(--tfx-speed, 1)) ease-in-out infinite;
+  }
+
+  html[data-thinking-fx="emoji"] [data-chat-running] [class*="_runningIcon"]::before {
+    animation: tfx-bob calc(1.5s / var(--tfx-speed, 1)) ease-in-out infinite;
+  }
+
+  /* glyph 的动画在图片自身里（每张 GIF 各有一个循环），不再叠 CSS 浮动 */
+}
+
+@keyframes tfx-spin {
+  to { transform: rotate(1turn); }
+}
+
+@keyframes tfx-core {
+  0%, 100% { transform: scale(0.72); opacity: 0.55; }
+  50% { transform: scale(1); opacity: 1; }
+}
+
+@keyframes tfx-halo {
+  0% { transform: scale(0.55); opacity: 0.8; }
+  70% { transform: scale(1.05); opacity: 0; }
+  100% { transform: scale(1.05); opacity: 0; }
+}
+
+@keyframes tfx-breathe {
+  0%, 100% { transform: scale(0.7); opacity: 0.5; }
+  50% { transform: scale(1); opacity: 1; }
+}
+
+@keyframes tfx-bob {
+  0%, 100% { transform: translateY(1px) rotate(-5deg); }
+  50% { transform: translateY(-2px) rotate(5deg); }
+}

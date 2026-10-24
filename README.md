@@ -10,7 +10,7 @@
 
 ## 效果
 
-![原版 / 40px / 52px 对比](preview/row-compare.png)
+![原版 / 本插件 52px 对比](preview/row-compare.png)
 
 - 藏掉官方鲸鱼（`_runningWhaleAnimated` + `_runningWhaleStill`），在图标盒上画自己的 glyph；
 - **每次思考随机抽一张动画**：运行状态行每次重新出现时，从五张里抽一张，抽中的那张会

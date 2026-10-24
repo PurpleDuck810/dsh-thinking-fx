@@ -14,9 +14,8 @@ BG = (13, 15, 22, 255)
 LABEL = (150, 158, 178, 255)
 
 rows = [
-    ("原版 14px（官方鲸鱼尾）", "row-none.png"),
-    ("你的素材 40px 图标（备选）", "row-glyph40.png"),
-    ("你的素材 52px 图标（默认）", "row-glyph52.png"),
+    ("原版：14px 图标 / 12px 文字", "row-none.png"),
+    ("本插件：52px 图标 / 16.8px 文字", "row-glyph52.png"),
 ]
 pad = 20
 label_w = 330

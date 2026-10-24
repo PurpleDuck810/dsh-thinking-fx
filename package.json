@@ -2,7 +2,7 @@
   "name": "dsh-thinking-fx",
   "version": "0.2.1",
   "private": true,
-  "description": "把 DSH「深度求索中」前面的小鲸鱼尾巴换成你的 Q 版表情包：每次运行随机抽一张循环动画，52px 大图标，颜色跟随主题。",
+  "description": "把 DSH「深度求索中」前的小鲸鱼尾巴换成 Q 版表情动画：每次运行随机一张循环播放，52px，颜色跟随主题。",
   "type": "module",
   "main": "index.js",
   "icon": "./icon.png",

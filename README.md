@@ -1,12 +1,12 @@
 # dsh-thinking-fx
 
-把 Chat 底部「深度求索中，用时 …」前面的**小鲸鱼尾巴**换成你自己的 Q 版表情包（或任意
-图标 / 动效）。
+把对话末尾运行状态行「深度求索中，用时 …」前面的官方小鲸鱼尾巴，换成一整套 Q 版表情动画：
+每次思考随机抽一张，抽中的那张循环播放。
 
-官方那只尾巴是 `@deepseek-ai/dsh-client-ui-chat` 里的一段 28×28 APNG，被当作 **CSS mask**
-画在 14px 的图标盒里，颜色取 `currentColor`。本插件沿用同一套机制：把五张 **GIF 动画**
-各自转成循环的 WebP，随机抽一张当 mask，颜色跟着「深度求索」那套主题 token 走 —— 换肤、
-明暗主题都不用改图。
+官方图标是 `@deepseek-ai/dsh-client-ui-chat` 里一只 28×28 的 APNG 鲸鱼尾，作为 **CSS mask**
+绘制在 14×14 的图标位里，颜色取 `currentColor`。本插件沿用同一机制：把五张 GIF 逐帧抠图、
+转成循环 WebP，每次思考随机抽一张作为 mask；颜色取自当前主题的「深度求索」文字色
+（`--dsw-alias-label-deep-diving`），所以换肤和明暗主题都不用改图。
 
 ## 效果
 

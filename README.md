@@ -27,7 +27,7 @@
 
 ### 界面安装（推荐）
 
-1. 到 [Releases](../../releases) 下载 `dsh-thinking-fx-0.2.1.tgz`；
+1. 到 [Releases](https://github.com/PurpleDuck810/dsh-thinking-fx/releases) 下载 `dsh-thinking-fx-0.2.1.tgz`；
 2. 打开 DSH → 左侧栏 **插件** → **添加插件** → **安装第三方插件**；
 3. 填 tgz 的绝对路径，例如 `C:\Users\你\Downloads\dsh-thinking-fx-0.2.1.tgz`；
 4. 安装完成后打开 `dsh-thinking-fx` 的开关。没生效就完全退出 DSH 再打开一次。

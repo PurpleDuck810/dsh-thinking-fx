@@ -12,6 +12,10 @@
 
 ![原版 / 本插件 52px 对比](preview/row-compare.png)
 
+浅色主题（图标和文字都取自当前主题的「深度求索」颜色，换肤自动跟随）：
+
+![浅色主题](preview/row-light.png)
+
 - 藏掉官方鲸鱼（`_runningWhaleAnimated` + `_runningWhaleStill`），在图标盒上画自己的 glyph；
 - **每次思考随机抽一张动画**：运行状态行每次重新出现时，从五张里抽一张，抽中的那张会
   **循环播放它自己的 GIF 动画**（约 24fps，各 5 秒），不会连着两次同一张；
@@ -138,6 +142,7 @@ node verify.mjs         # 注入真实 lib/client.js，断言随机抽帧、动�
 
 - `?fx=none` 原版
 - `?fx=glyph&size=52&scale=1.4&frame=0..4` 五张动画（CSS 预览；随机抽帧由真实 bundle 负责）
+- `?fx=glyph&size=52&scale=1.4&theme=light` 浅色主题
 - `?fx=orbit` / `pulse` / `emoji` / `image` 其它预设
 
 ## 已知限制

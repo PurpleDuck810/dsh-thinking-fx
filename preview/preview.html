@@ -18,6 +18,13 @@
     --dsh-content-font-delta: 0px;
   }
   #row { display: inline-flex; }
+  /* 浅色主题：取 DSH light 主题的 base / deep-diving 实际计算值 */
+  html[data-theme="light"], html[data-theme="light"] body { background: #ffffff; }
+  html[data-theme="light"] body {
+    color: #1b1b1c;
+    --dsw-alias-label-deep-diving: #345eba;
+    --dsw-alias-label-deep-diving-shimmer: #243d80;
+  }
   /* 与 ui-chat/accessibility.module.css 同义：预览页没加载那个模块，手动补一条 */
   .glcmna_visuallyHidden { clip: rect(0 0 0 0); white-space: nowrap; width: 1px; height: 1px; position: absolute; overflow: hidden; }
 </style>
@@ -53,6 +60,7 @@
 
   <script>
     const params = new URLSearchParams(location.search)
+    if (params.get('theme') === 'light') document.documentElement.dataset.theme = 'light'
     const fx = params.get('fx') || 'none'
     if (fx !== 'none') {
       document.documentElement.dataset.thinkingFx = fx

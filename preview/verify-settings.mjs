@@ -30,6 +30,7 @@ const clearCookies = () =>
   page.evaluate(() => {
     document.cookie = 'thinking_fx_size=; path=/; max-age=0'
     document.cookie = 'thinking_fx_scale=; path=/; max-age=0'
+    document.cookie = 'thinking_fx_color=; path=/; max-age=0'
   })
 
 await page.goto('http://127.0.0.1:53901/preview/preview.html?fx=none')
@@ -114,6 +115,32 @@ const custom = await page.evaluate(() => ({
 }))
 check('stored size wins', custom.size === '64px', custom.size)
 check('stored scale wins', custom.scale === '1.6', custom.scale)
+
+await page.evaluate(() => {
+  window.__lastDispose?.()
+  document.cookie = 'thinking_fx_color=ff3366; path=/'
+  window.__plugin.apply(window.__fakeCtx)
+})
+const colored = await page.evaluate(() => {
+  const row = document.querySelector('[data-chat-running]')
+  const tag = document.querySelector('style[data-plugin-css="dsh-thinking-fx/custom-color.css"]')
+  return {
+    rule: tag?.textContent ?? '',
+    value: row ? getComputedStyle(row).getPropertyValue('--dsw-alias-label-deep-diving').trim() : '',
+  }
+})
+check('color tag applied', colored.rule.includes('#ff3366'), colored.rule.slice(0, 80))
+check('row color token', colored.value === '#ff3366', colored.value)
+
+await page.evaluate(() => {
+  window.__lastDispose?.()
+  document.cookie = 'thinking_fx_color=; path=/; max-age=0'
+  window.__plugin.apply(window.__fakeCtx)
+})
+const resetColor = await page.evaluate(
+  () => document.querySelector('style[data-plugin-css="dsh-thinking-fx/custom-color.css"]') === null,
+)
+check('color tag removed', resetColor)
 
 await clearCookies()
 await browser.close()

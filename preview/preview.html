@@ -70,6 +70,11 @@
     if (size) document.documentElement.style.setProperty('--tfx-size', `${size}px`)
     const scale = params.get('scale')
     if (scale) document.documentElement.style.setProperty('--tfx-text-scale', scale)
+    const color = params.get('color')
+    if (/^[0-9a-f]{6}$/i.test(color || '')) {
+      document.body.style.setProperty('--dsw-alias-label-deep-diving', `#${color}`)
+      document.body.style.setProperty('--dsw-alias-label-deep-diving-shimmer', `#${color}`)
+    }
 
     // glyph 预设用第一张动画当 mask（插件构建时会把五张都内联成 data URI）
     const frame = params.get('frame') || '0'

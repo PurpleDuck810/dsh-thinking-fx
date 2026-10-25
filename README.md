@@ -20,7 +20,7 @@
 - **每次思考随机抽一张动画**：运行状态行每次重新出现时，从五张里抽一张，抽中的那张会
   **循环播放它自己的 GIF 动画**（约 24fps，各 5 秒），不会连着两次同一张；
 - 默认 52px 图标 + 16.8px 文字（官方是 14px 图标 / 12px 文字；可在
-  **设置 → 深度思考表情包** 里改成 28–80px / 1–2×）；
+  **设置 → 深度思考表情包** 里改成 28–80px / 1–2×，也可以换自定义颜色）；
 - `prefers-reduced-motion: reduce` 时自动换成该动画的静态首帧（和官方 APNG → 静态 SVG 的回退一致）；
 - `forced-colors` 下不接管，保留官方静态矢量图标；
 - 只改视觉：不读会话、不发请求、不碰模型上下文；停用插件即完全还原。
@@ -31,9 +31,9 @@
 
 ### 界面安装（推荐）
 
-1. 到 [Releases](https://github.com/PurpleDuck810/dsh-thinking-fx/releases) 下载 `dsh-thinking-fx-0.3.0.tgz`；
+1. 到 [Releases](https://github.com/PurpleDuck810/dsh-thinking-fx/releases) 下载 `dsh-thinking-fx-0.3.1.tgz`；
 2. 打开 DSH → 左侧栏 **插件** → **添加插件** → **安装第三方插件**；
-3. 填 tgz 的绝对路径，例如 `C:\Users\你\Downloads\dsh-thinking-fx-0.3.0.tgz`；
+3. 填 tgz 的绝对路径，例如 `C:\Users\你\Downloads\dsh-thinking-fx-0.3.1.tgz`；
 4. 安装完成后打开 `dsh-thinking-fx` 的开关。没生效就完全退出 DSH 再打开一次。
 
 也可以不下载 tgz，直接在输入框填仓库地址：`github:PurpleDuck810/dsh-thinking-fx`。
@@ -44,7 +44,7 @@
 
 ```powershell
 # 用 Releases 里的 tgz
-dsh plugin --profile desktop add "$env:USERPROFILE\Downloads\dsh-thinking-fx-0.3.0.tgz"
+dsh plugin --profile desktop add "$env:USERPROFILE\Downloads\dsh-thinking-fx-0.3.1.tgz"
 
 # 或直接从 GitHub 装
 dsh plugin --profile desktop add "github:PurpleDuck810/dsh-thinking-fx"
@@ -60,15 +60,18 @@ dsh plugin --profile desktop add "github:PurpleDuck810/dsh-thinking-fx"
 dsh plugin --profile desktop remove dsh-thinking-fx
 ```
 
-## 调整尺寸
+## 调整尺寸与颜色
 
 打开 **设置 → 深度思考表情包**：
 
 - **图标大小**：28–80px，默认 **52px**
 - **文字大小**：1.0×–2.0×，默认 **1.4×**（约 16.8px）
-- **恢复默认**：回到 52px / 1.4×
+- **自定义颜色**：取色器选一个颜色，图标和文字一起变；点「跟随主题」恢复主题蓝
+- **恢复默认**：回到 52px / 1.4× / 主题色
 
 修改立即生效，保存在浏览器里；重启 DSH、端口变化后仍然保留，不需要重新构建。
+
+![自定义颜色示例（#ff5c9d）](preview/row-color.png)
 
 ## 开发
 
@@ -182,6 +185,7 @@ node verify.mjs         # 注入真实 lib/client.js，断言随机抽帧、动�
 
 ## 版本
 
+- **0.3.1** — 设置页新增自定义颜色（取色器 / 跟随主题），图标和文字一起变色。
 - **0.3.0** — 新增「设置 → 深度思考表情包」：图标 28–80px、文字 1–2×，默认 52px / 1.4×；
   设置保存在浏览器 cookie，重启或换端口仍生效。
 - **0.2.1** — 动画恢复原速（1.0×，5s），仍保留全部 120 帧 / 24fps。
